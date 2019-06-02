@@ -7,12 +7,14 @@
  * (at your option) any later version.
  */
 
-#include "cnc-application.h"
+#pragma once
 
-int main (int argc, char **argv)
-{
-    gtk_init (&argc, &argv);
+#include <gtk/gtk.h>
 
-    g_autoptr(CncApplication) app = cnc_application_new ();
-    return g_application_run (G_APPLICATION (app), argc, argv);
-}
+G_BEGIN_DECLS
+
+G_DECLARE_FINAL_TYPE (CncApplication, cnc_application, CNC, APPLICATION, GtkApplication)
+
+CncApplication *cnc_application_new (void);
+
+G_END_DECLS
