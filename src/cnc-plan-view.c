@@ -16,11 +16,27 @@ struct _CncPlanView
     CncPlan *plan;
     CncLine *current_line;
     gdouble scale;
+    gdouble x_offset;
+    gdouble y_offset;
     gdouble width;
     gdouble height;
 };
 
 G_DEFINE_TYPE (CncPlanView, cnc_plan_view, GTK_TYPE_DRAWING_AREA)
+
+static void
+screen_to_plan (CncPlanView *self, gdouble x, gdouble y, gdouble *plan_x, gdouble *plan_y)
+{
+    *plan_x = x / self->scale - self->x_offset;
+    *plan_y = y / self->scale - self->y_offset;
+}
+
+static void
+plan_to_screen (CncPlanView *self, gdouble x, gdouble y, gdouble *screen_x, gdouble *screen_y)
+{
+    *screen_x = (x + self->x_offset) * self->scale;
+    *screen_y = (y + self->y_offset) * self->scale;
+}
 
 static gboolean
 cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
@@ -32,12 +48,18 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
 
     /* Draw a grid */
     for (int x = 0; x <= self->width; x += 10) {
-        cairo_move_to (cr, x * self->scale + 0.5, 0);
-        cairo_line_to (cr, x * self->scale + 0.5, self->height * self->scale);
+        gdouble x0, y0, x1, y1;
+        plan_to_screen (self, x, 0, &x0, &y0);
+        plan_to_screen (self, x, self->height, &x1, &y1);
+        cairo_move_to (cr, x0 + 0.5, y0 + 0.5);
+        cairo_line_to (cr, x1 + 0.5, y1 + 0.5);
     }
     for (int y = 0; y <= self->height; y += 10) {
-        cairo_move_to (cr, 0, y * self->scale + 0.5);
-        cairo_line_to (cr, self->width * self->scale, y * self->scale + 0.5);
+        gdouble x0, y0, x1, y1;
+        plan_to_screen (self, 0, y, &x0, &y0);
+        plan_to_screen (self, self->width, y, &x1, &y1);
+        cairo_move_to (cr, x0 + 0.5, y0 + 0.5);
+        cairo_line_to (cr, x1 + 0.5, y1 + 0.5);
     }
     cairo_set_source_rgba (cr, 0, 0, 1, 0.5);
     cairo_stroke (cr);
@@ -48,8 +70,11 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
     GPtrArray *lines = cnc_plan_get_lines (self->plan);
     for (guint i = 0; i < lines->len; i++) {
         CncLine *line = g_ptr_array_index (lines, i);
-        cairo_move_to (cr, line->x0 * self->scale, line->y0 * self->scale);
-        cairo_line_to (cr, line->x1 * self->scale, line->y1 * self->scale);
+        gdouble x0, y0, x1, y1;
+        plan_to_screen (self, line->x0, line->y0, &x0, &y0);
+        plan_to_screen (self, line->x1, line->y1, &x1, &y1);
+        cairo_move_to (cr, x0, y0);
+        cairo_line_to (cr, x1, y1);
     }
     cairo_set_source_rgb (cr, 1, 1, 1);
     cairo_stroke (cr);
@@ -65,8 +90,8 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
     if (self->plan == NULL)
         return TRUE;
 
-    gdouble x = event->x / self->scale;
-    gdouble y = event->y / self->scale;
+    gdouble x, y;
+    screen_to_plan (self, event->x, event->y, &x, &y);
 
     if (event->button == 1) {
         if (self->current_line != NULL) {
@@ -96,8 +121,8 @@ cnc_plan_view_motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 {
     CncPlanView *self = CNC_PLAN_VIEW (widget);
 
-    gdouble x = event->x / self->scale;
-    gdouble y = event->y / self->scale;
+    gdouble x, y;
+    screen_to_plan (self, event->x, event->y, &x, &y);
 
     if (self->current_line != NULL) {
         self->current_line->x1 = x;
@@ -121,6 +146,8 @@ cnc_plan_view_init (CncPlanView *self)
 {
     gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
     self->scale = 4.0;
+    self->x_offset = 10.0;
+    self->y_offset = 10.0;
     self->width = 300.0;
     self->height = 200.0;
 }
