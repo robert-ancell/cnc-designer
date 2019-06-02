@@ -9,7 +9,8 @@ exe = executable('cnc-designer',
                  resources_src,
                  sources : [ 'cnc-application.c',
                    'cnc-application-window.c',
-                   'cnc-designer.c' ],
+                   'cnc-designer.c',
+                   'cnc-plan-view.c' ],
                  dependencies : [ gtk_dep ],
                  install : true)
 

@@ -3,9 +3,8 @@
   <template class="CncApplicationWindow" parent="GtkApplicationWindow">
     <property name="visible">True</property>
     <child>
-      <object class="GtkLabel">
+      <object class="CncPlanView">
         <property name="visible">True</property>
-        <property name="label">Hello World</property>
       </object>
     </child>
   </template>

@@ -8,6 +8,7 @@
  */
 
 #include "cnc-application-window.h"
+#include "cnc-plan-view.h"
 
 struct _CncApplicationWindow
 {
@@ -28,6 +29,7 @@ cnc_application_window_class_init (CncApplicationWindowClass *klass)
 static void
 cnc_application_window_init (CncApplicationWindow *self)
 {
+    cnc_plan_view_get_type ();
     gtk_widget_init_template (GTK_WIDGET (self));
 }
 
