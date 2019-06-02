@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="CncApplicationWindow" parent="GtkApplicationWindow">
+    <property name="visible">True</property>
+    <child>
+      <object class="GtkLabel">
+        <property name="visible">True</property>
+        <property name="label">Hello World</property>
+      </object>
+    </child>
+  </template>
+</interface>

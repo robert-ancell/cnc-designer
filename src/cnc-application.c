@@ -20,18 +20,35 @@ struct _CncApplication
 G_DEFINE_TYPE (CncApplication, cnc_application, GTK_TYPE_APPLICATION)
 
 static void
+cnc_application_startup (GApplication *application)
+{
+    CncApplication *self = CNC_APPLICATION (application);
+
+    G_APPLICATION_CLASS (cnc_application_parent_class)->startup (application);
+
+    self->window = cnc_application_window_new (self);
+}
+
+static void
 cnc_application_activate (GApplication *application)
 {
     CncApplication *self = CNC_APPLICATION (application);
-    self->window = cnc_application_window_new (self);
+    gtk_window_present (GTK_WINDOW (self->window));
+}
+
+static void
+cnc_application_finalize (GObject *object)
+{
+    CncApplication *self = CNC_APPLICATION (object);
+    g_clear_object (&self->window);
 }
 
 static void
 cnc_application_class_init (CncApplicationClass *klass)
 {
-    GApplicationClass *application_class = G_APPLICATION_CLASS (klass);
-
-    application_class->activate = cnc_application_activate;
+    G_APPLICATION_CLASS (klass)->startup = cnc_application_startup;
+    G_APPLICATION_CLASS (klass)->activate = cnc_application_activate;
+    G_OBJECT_CLASS (klass)->finalize = cnc_application_finalize;
 }
 
 static void
