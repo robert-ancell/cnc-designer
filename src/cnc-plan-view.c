@@ -27,13 +27,22 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
     return TRUE;
 }
 
+static gboolean
+cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
+{
+    g_printerr ("%f %f\n", event->x, event->y);
+    return TRUE;
+}
+
 static void
 cnc_plan_view_class_init (CncPlanViewClass *klass)
 {
     GTK_WIDGET_CLASS (klass)->draw = cnc_plan_view_draw;
+    GTK_WIDGET_CLASS (klass)->button_press_event = cnc_plan_view_button_press_event;
 }
 
 static void
 cnc_plan_view_init (CncPlanView *self)
 {
+    gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
 }
