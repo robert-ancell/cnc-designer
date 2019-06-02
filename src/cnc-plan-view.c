@@ -14,6 +14,7 @@ struct _CncPlanView
     GtkDrawingArea parent_instance;
 
     CncPlan *plan;
+    CncLine *current_line;
 };
 
 G_DEFINE_TYPE (CncPlanView, cnc_plan_view, GTK_TYPE_DRAWING_AREA)
@@ -46,28 +47,20 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
     CncPlanView *self = CNC_PLAN_VIEW (widget);
 
-    g_printerr ("%f %f\n", event->x, event->y);
-
     if (self->plan == NULL)
         return TRUE;
 
-    GPtrArray *lines = cnc_plan_get_lines (self->plan);
-    CncLine *line = NULL;
-    if (lines->len > 0) {
-        line = g_ptr_array_index (lines, lines->len - 1);
-        if (line->x1 != 0 || line->y1 != 0)
-           line = NULL;
-    }
-    if (line == NULL)
-        line = cnc_plan_add_line (self->plan);
-
-    if (line->x0 == 0 && line->y0 == 0) {
-        line->x0 = event->x;
-        line->y0 = event->y;
+    if (self->current_line != NULL) {
+        self->current_line->x1 = event->x;
+        self->current_line->y1 = event->y;
+        self->current_line = NULL;
     }
     else {
-        line->x1 = event->x;
-        line->y1 = event->y;
+        self->current_line = cnc_plan_add_line (self->plan);
+        self->current_line->x0 = event->x;
+        self->current_line->y0 = event->y;
+        self->current_line->x1 = event->x;
+        self->current_line->y1 = event->y;
     }
 
     gtk_widget_queue_draw (GTK_WIDGET (self));
@@ -75,17 +68,32 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
     return TRUE;
 }
 
+static gboolean
+cnc_plan_view_motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
+{
+    CncPlanView *self = CNC_PLAN_VIEW (widget);
+
+    if (self->current_line != NULL) {
+        self->current_line->x1 = event->x;
+        self->current_line->y1 = event->y;
+        gtk_widget_queue_draw (GTK_WIDGET (self));
+    }
+
+    return FALSE;
+}
+
 static void
 cnc_plan_view_class_init (CncPlanViewClass *klass)
 {
     GTK_WIDGET_CLASS (klass)->draw = cnc_plan_view_draw;
     GTK_WIDGET_CLASS (klass)->button_press_event = cnc_plan_view_button_press_event;
+    GTK_WIDGET_CLASS (klass)->motion_notify_event = cnc_plan_view_motion_notify_event;
 }
 
 static void
 cnc_plan_view_init (CncPlanView *self)
 {
-    gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
+    gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
 }
 
 void
