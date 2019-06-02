@@ -9,14 +9,22 @@
 
 #pragma once
 
-#include <gtk/gtk.h>
-
-#include "cnc-plan.h"
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
-G_DECLARE_FINAL_TYPE (CncPlanView, cnc_plan_view, CNC, PLAN_VIEW, GtkDrawingArea)
+G_DECLARE_FINAL_TYPE (CncPlan, cnc_plan, CNC, PLAN, GObject)
 
-void cnc_plan_view_set_plan (CncPlanView *view, CncPlan *plan);
+typedef struct
+{
+    gdouble x0, y0;
+    gdouble x1, y1;
+} CncLine;
+
+CncPlan   *cnc_plan_new       (void);
+
+CncLine   *cnc_plan_add_line  (CncPlan *plan);
+
+GPtrArray *cnc_plan_get_lines (CncPlan *plan);
 
 G_END_DECLS

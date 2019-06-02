@@ -37,21 +37,14 @@ cnc_application_activate (GApplication *application)
 }
 
 static void
-cnc_application_finalize (GObject *object)
-{
-    //CncApplication *self = CNC_APPLICATION (object);
-}
-
-static void
 cnc_application_class_init (CncApplicationClass *klass)
 {
     G_APPLICATION_CLASS (klass)->startup = cnc_application_startup;
     G_APPLICATION_CLASS (klass)->activate = cnc_application_activate;
-    G_OBJECT_CLASS (klass)->finalize = cnc_application_finalize;
 }
 
 static void
-cnc_application_init (CncApplication *self)
+cnc_application_init (CncApplication *self G_GNUC_UNUSED)
 {
 }
 

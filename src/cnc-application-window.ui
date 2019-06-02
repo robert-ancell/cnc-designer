@@ -3,7 +3,7 @@
   <template class="CncApplicationWindow" parent="GtkApplicationWindow">
     <property name="visible">True</property>
     <child>
-      <object class="CncPlanView">
+      <object class="CncPlanView" id="plan_view">
         <property name="visible">True</property>
       </object>
     </child>
