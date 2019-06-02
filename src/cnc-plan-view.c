@@ -24,7 +24,7 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
 {
     CncPlanView *self = CNC_PLAN_VIEW (widget);
 
-    cairo_set_source_rgb (cr, 1.0, 0, 0);
+    cairo_set_source_rgb (cr, 0, 0, 0);
     cairo_paint (cr);
 
     if (self->plan == NULL)
@@ -36,7 +36,7 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
         cairo_move_to (cr, line->x0, line->y0);
         cairo_line_to (cr, line->x1, line->y1);
     }
-    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_set_source_rgb (cr, 1, 1, 1);
     cairo_stroke (cr);
 
     return TRUE;
