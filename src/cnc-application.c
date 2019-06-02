@@ -8,17 +8,22 @@
  */
 
 #include "cnc-application.h"
+#include "cnc-application-window.h"
 
 struct _CncApplication
 {
     GtkApplication parent_instance;
+
+    CncApplicationWindow *window;
 };
 
 G_DEFINE_TYPE (CncApplication, cnc_application, GTK_TYPE_APPLICATION)
 
 static void
-cnc_application_activate (CncApplication *self)
+cnc_application_activate (GApplication *application)
 {
+    CncApplication *self = CNC_APPLICATION (application);
+    self->window = cnc_application_window_new (self);
 }
 
 static void
