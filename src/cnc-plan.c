@@ -7,6 +7,8 @@
  * (at your option) any later version.
  */
 
+#include <json-glib/json-glib.h>
+
 #include "cnc-plan.h"
 
 struct _CncPlan
@@ -54,6 +56,73 @@ CncPlan *
 cnc_plan_new (void)
 {
     return g_object_new (cnc_plan_get_type (), NULL);
+}
+
+static gboolean
+set_from_data (CncPlan *self, const gchar *data, gssize length, GError **error)
+{
+    g_autoptr(JsonParser) parser = json_parser_new ();
+    if (!json_parser_load_from_data (parser, data, length, error))
+        return FALSE;
+
+    g_ptr_array_set_size (self->lines, 0);
+
+    // FIXME: checks
+    JsonNode *root_node = json_parser_get_root (parser);
+    JsonObject *root = json_node_get_object (root_node);
+    JsonArray *lines = json_object_get_array_member (root, "lines");
+    for (guint i = 0; i < json_array_get_length (lines); i++) {
+        JsonObject *line_object = json_array_get_object_element (lines, i);
+        CncLine *line = cnc_plan_add_line (self);
+        line->x0 = json_object_get_double_member (line_object, "x0");
+        line->y0 = json_object_get_double_member (line_object, "y0");
+        line->x1 = json_object_get_double_member (line_object, "x1");
+        line->y1 = json_object_get_double_member (line_object, "y1");
+    }
+
+    return TRUE;
+}
+
+CncPlan *
+cnc_plan_new_from_data (const gchar *data, gssize length)
+{
+    CncPlan *plan = cnc_plan_new ();
+
+    g_autoptr(GError) error = NULL;
+    set_from_data (plan, data, length, &error);
+
+    return plan;
+}
+
+gchar *
+cnc_plan_to_data (CncPlan *self, gsize *length)
+{
+    g_autoptr(JsonBuilder) builder = json_builder_new ();
+
+    json_builder_begin_object (builder);
+    json_builder_set_member_name (builder, "lines");
+    json_builder_begin_array (builder);
+    for (guint i = 0; i < self->lines->len; i++) {
+        CncLine *line = g_ptr_array_index (self->lines, i);
+        json_builder_begin_object (builder);
+        json_builder_set_member_name (builder, "x0");
+        json_builder_add_double_value (builder, line->x0);
+        json_builder_set_member_name (builder, "y0");
+        json_builder_add_double_value (builder, line->y0);
+        json_builder_set_member_name (builder, "x1");
+        json_builder_add_double_value (builder, line->x1);
+        json_builder_set_member_name (builder, "y1");
+        json_builder_add_double_value (builder, line->y1);
+        json_builder_end_object (builder);
+    }
+    json_builder_end_array (builder);
+    json_builder_end_object (builder);
+
+    g_autoptr(JsonGenerator) generator = json_generator_new ();
+    g_autoptr(JsonNode) root = json_builder_get_root (builder);
+    json_generator_set_root (generator, root);
+
+    return json_generator_to_data (generator, length);
 }
 
 CncLine *

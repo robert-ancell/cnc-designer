@@ -12,7 +12,7 @@ exe = executable('cnc-designer',
                    'cnc-designer.c',
                    'cnc-plan.c',
                    'cnc-plan-view.c' ],
-                 dependencies : [ gtk_dep ],
+                 dependencies : [ gtk_dep, json_glib_dep ],
                  install : true)
 
 test('basic', exe)

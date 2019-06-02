@@ -82,6 +82,14 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
     return TRUE;
 }
 
+static void
+save (CncPlanView *self)
+{
+    g_autofree gchar *data = cnc_plan_to_data (self->plan, NULL);
+    g_autoptr(GError) error = NULL;
+    g_file_set_contents ("cnc-autosave.json", data, -1, &error);
+}
+
 static gboolean
 cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
@@ -97,6 +105,7 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
         if (self->current_line != NULL) {
             self->current_line->x1 = x;
             self->current_line->y1 = y;
+            save (self);
         }
         self->current_line = cnc_plan_add_line (self->plan);
         self->current_line->x0 = x;

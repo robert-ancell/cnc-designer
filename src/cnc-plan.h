@@ -21,12 +21,16 @@ typedef struct
     gdouble x1, y1;
 } CncLine;
 
-CncPlan   *cnc_plan_new         (void);
+CncPlan   *cnc_plan_new           (void);
 
-CncLine   *cnc_plan_add_line    (CncPlan *plan);
+CncPlan   *cnc_plan_new_from_data (const gchar *data, gssize length);
 
-void       cnc_plan_remove_line (CncPlan *plan, CncLine *line);
+gchar     *cnc_plan_to_data       (CncPlan *plan, gsize *length);
 
-GPtrArray *cnc_plan_get_lines   (CncPlan *plan);
+CncLine   *cnc_plan_add_line      (CncPlan *plan);
+
+void       cnc_plan_remove_line   (CncPlan *plan, CncLine *line);
+
+GPtrArray *cnc_plan_get_lines     (CncPlan *plan);
 
 G_END_DECLS

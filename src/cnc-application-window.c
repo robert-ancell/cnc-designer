@@ -37,7 +37,12 @@ cnc_application_window_init (CncApplicationWindow *self)
     cnc_plan_view_get_type ();
     gtk_widget_init_template (GTK_WIDGET (self));
 
-    self->plan = cnc_plan_new ();
+    g_autoptr(GError) error = NULL;
+    g_autofree gchar *save_data = NULL;
+    if (g_file_get_contents ("cnc-autosave.json", &save_data, NULL, &error))
+        self->plan = cnc_plan_new_from_data (save_data, -1);
+    else
+        self->plan = cnc_plan_new ();
     cnc_plan_view_set_plan (self->plan_view, self->plan);
 }
 
