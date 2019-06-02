@@ -39,8 +39,7 @@ cnc_application_activate (GApplication *application)
 static void
 cnc_application_finalize (GObject *object)
 {
-    CncApplication *self = CNC_APPLICATION (object);
-    g_clear_object (&self->window);
+    //CncApplication *self = CNC_APPLICATION (object);
 }
 
 static void
