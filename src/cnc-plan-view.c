@@ -68,17 +68,22 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
     gdouble x = event->x / self->scale;
     gdouble y = event->y / self->scale;
 
-    if (self->current_line != NULL) {
-        self->current_line->x1 = x;
-        self->current_line->y1 = y;
-        self->current_line = NULL;
-    }
-    else {
+    if (event->button == 1) {
+        if (self->current_line != NULL) {
+            self->current_line->x1 = x;
+            self->current_line->y1 = y;
+        }
         self->current_line = cnc_plan_add_line (self->plan);
         self->current_line->x0 = x;
         self->current_line->y0 = y;
         self->current_line->x1 = x;
         self->current_line->y1 = y;
+    }
+    else if (event->button == 3) {
+        if (self->current_line != NULL) {
+            cnc_plan_remove_line (self->plan, self->current_line);
+            self->current_line = NULL;
+        }
     }
 
     gtk_widget_queue_draw (GTK_WIDGET (self));
@@ -115,7 +120,7 @@ static void
 cnc_plan_view_init (CncPlanView *self)
 {
     gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
-    self->scale = 2.0;
+    self->scale = 4.0;
     self->width = 300.0;
     self->height = 200.0;
 }

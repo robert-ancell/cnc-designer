@@ -65,6 +65,13 @@ cnc_plan_add_line (CncPlan *self)
     return line;
 }
 
+void
+cnc_plan_remove_line (CncPlan *self, CncLine *line)
+{
+    g_return_if_fail (CNC_IS_PLAN (self));
+    g_ptr_array_remove (self->lines, line);
+}
+
 GPtrArray *
 cnc_plan_get_lines (CncPlan *self)
 {
