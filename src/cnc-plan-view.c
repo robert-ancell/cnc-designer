@@ -15,6 +15,7 @@ struct _CncPlanView
 
     CncPlan *plan;
     CncLine *current_line;
+    gdouble scale;
 };
 
 G_DEFINE_TYPE (CncPlanView, cnc_plan_view, GTK_TYPE_DRAWING_AREA)
@@ -26,6 +27,18 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
 
     cairo_set_source_rgb (cr, 0, 0, 0);
     cairo_paint (cr);
+
+    /* Draw a grid */
+    for (int x = 0; x <= 300; x += 10) {
+        cairo_move_to (cr, x, 0);
+        cairo_line_to (cr, x, 200);
+    }
+    for (int y = 0; y <= 200; y += 10) {
+        cairo_move_to (cr, 0, y);
+        cairo_line_to (cr, 300, y);
+    }
+    cairo_set_source_rgba (cr, 0, 0, 1, 0.75);
+    cairo_stroke (cr);
 
     if (self->plan == NULL)
         return TRUE;
@@ -94,6 +107,7 @@ static void
 cnc_plan_view_init (CncPlanView *self)
 {
     gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
+    self->scale = 2.0;
 }
 
 void
