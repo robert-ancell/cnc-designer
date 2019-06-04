@@ -71,6 +71,10 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
     GPtrArray *layers = cnc_plan_get_layers (self->plan);
     for (guint i = 0; i < layers->len; i++) {
         CncLayer *layer = g_ptr_array_index (layers, i);
+
+        if (!cnc_layer_get_visible (layer))
+            continue;
+
         GPtrArray *shapes = cnc_layer_get_shapes (layer);
         for (guint j = 0; j < shapes->len; j++) {
             CncShape *shape = g_ptr_array_index (shapes, i);

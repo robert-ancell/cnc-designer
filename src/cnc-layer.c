@@ -16,6 +16,7 @@ struct _CncLayer
     GObject parent_instance;
 
     gchar *name;
+    gboolean visible;
     GPtrArray *shapes;
 };
 
@@ -38,7 +39,8 @@ cnc_layer_class_init (CncLayerClass *klass)
 static void
 cnc_layer_init (CncLayer *self)
 {
-     self->shapes = g_ptr_array_new_with_free_func (g_object_unref);
+    self->visible = TRUE;
+    self->shapes = g_ptr_array_new_with_free_func (g_object_unref);
 }
 
 CncLayer *
@@ -56,6 +58,8 @@ set_from_json (CncLayer *self, JsonNode *node, GError **error)
     JsonObject *root = json_node_get_object (node);
     if (json_object_has_member (root, "name"))
         cnc_layer_set_name (self, json_object_get_string_member (root, "name"));
+    if (json_object_has_member (root, "visible"))
+        cnc_layer_set_visible (self, json_object_get_boolean_member (root, "visible"));
     if (json_object_has_member (root, "shapes")) {
         JsonArray *shapes = json_object_get_array_member (root, "shapes");
         for (guint i = 0; i < json_array_get_length (shapes); i++) {
@@ -87,6 +91,8 @@ cnc_layer_to_json (CncLayer *self)
         json_builder_set_member_name (builder, "name");
         json_builder_add_string_value (builder, self->name);
     }
+    json_builder_set_member_name (builder, "visible");
+    json_builder_add_boolean_value (builder, self->visible);
     json_builder_set_member_name (builder, "shapes");
     json_builder_begin_array (builder);
     for (guint i = 0; i < self->shapes->len; i++) {
@@ -112,6 +118,20 @@ cnc_layer_get_name (CncLayer *self)
 {
     g_return_val_if_fail (CNC_IS_LAYER (self), NULL);
     return self->name;
+}
+
+void
+cnc_layer_set_visible (CncLayer *self, gboolean visible)
+{
+    g_return_if_fail (CNC_IS_LAYER (self));
+    self->visible = visible;
+}
+
+gboolean
+cnc_layer_get_visible (CncLayer *self)
+{
+    g_return_val_if_fail (CNC_IS_LAYER (self), FALSE);
+    return self->visible;
 }
 
 CncShape *

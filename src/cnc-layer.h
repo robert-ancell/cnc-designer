@@ -20,17 +20,20 @@ G_DECLARE_FINAL_TYPE (CncLayer, cnc_layer, CNC, LAYER, GObject)
 
 CncLayer    *cnc_layer_new           (void);
 
-CncLayer    *cnc_layer_new_from_json (JsonNode    *node);
+CncLayer    *cnc_layer_new_from_json (JsonNode *node);
 
-JsonNode    *cnc_layer_to_json       (CncLayer    *layer);
+JsonNode    *cnc_layer_to_json       (CncLayer *layer);
 
-void         cnc_layer_set_name      (CncLayer    *layer,
-                                      const gchar *name);
+void         cnc_layer_set_name      (CncLayer *layer, const gchar *name);
 
-const gchar *cnc_layer_get_name      (CncLayer    *layer);
+const gchar *cnc_layer_get_name      (CncLayer *layer);
 
-CncShape    *cnc_layer_add_shape     (CncLayer    *layer);
+void         cnc_layer_set_visible   (CncLayer *layer, gboolean visible);
 
-GPtrArray   *cnc_layer_get_shapes    (CncLayer    *layer);
+gboolean     cnc_layer_get_visible   (CncLayer *layer);
+
+CncShape    *cnc_layer_add_shape     (CncLayer *layer);
+
+GPtrArray   *cnc_layer_get_shapes    (CncLayer *layer);
 
 G_END_DECLS
