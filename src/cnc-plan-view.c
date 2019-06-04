@@ -126,6 +126,23 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
 }
 
 static gboolean
+cnc_plan_view_scroll_event (GtkWidget *widget, GdkEventScroll *event)
+{
+    CncPlanView *self = CNC_PLAN_VIEW (widget);
+
+    if (event->direction == GDK_SCROLL_UP) {
+        self->scale *= 1.2;
+    }
+    else if (event->direction == GDK_SCROLL_DOWN) {
+        self->scale /= 1.2;
+    }
+
+    gtk_widget_queue_draw (GTK_WIDGET (self));
+
+    return TRUE;
+}
+
+static gboolean
 cnc_plan_view_motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 {
     CncPlanView *self = CNC_PLAN_VIEW (widget);
@@ -147,13 +164,14 @@ cnc_plan_view_class_init (CncPlanViewClass *klass)
 {
     GTK_WIDGET_CLASS (klass)->draw = cnc_plan_view_draw;
     GTK_WIDGET_CLASS (klass)->button_press_event = cnc_plan_view_button_press_event;
+    GTK_WIDGET_CLASS (klass)->scroll_event = cnc_plan_view_scroll_event;
     GTK_WIDGET_CLASS (klass)->motion_notify_event = cnc_plan_view_motion_notify_event;
 }
 
 static void
 cnc_plan_view_init (CncPlanView *self)
 {
-    gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
+    gtk_widget_add_events (GTK_WIDGET (self), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_SCROLL_MASK | GDK_POINTER_MOTION_MASK);
     self->scale = 4.0;
     self->x_offset = 10.0;
     self->y_offset = 10.0;
