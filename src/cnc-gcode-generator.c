@@ -183,6 +183,14 @@ cnc_gcode_generator_add_move_z (CncGcodeGenerator *self, gint64 z)
     end_line (self);
 }
 
+void
+cnc_gcode_generator_add_end_of_program (CncGcodeGenerator *self)
+{
+    g_return_if_fail (CNC_IS_GCODE_GENERATOR (self));
+    g_string_append (self->data, "M30");
+    end_line (self);
+}
+
 gchar *
 cnc_gcode_generator_to_data (CncGcodeGenerator *self)
 {

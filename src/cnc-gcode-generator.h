@@ -55,6 +55,8 @@ void               cnc_gcode_generator_add_move_xy        (CncGcodeGenerator *ge
 
 void               cnc_gcode_generator_add_move_z         (CncGcodeGenerator *generator, gint64 z);
 
+void               cnc_gcode_generator_add_end_of_program (CncGcodeGenerator *generator);
+
 gchar             *cnc_gcode_generator_to_data            (CncGcodeGenerator *generator);
 
 G_END_DECLS
