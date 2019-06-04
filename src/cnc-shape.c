@@ -47,7 +47,7 @@ cnc_shape_class_init (CncShapeClass *klass)
 static void
 cnc_shape_init (CncShape *self)
 {
-     self->lines = g_ptr_array_new_with_free_func ((GDestroyNotify) cnc_line_free);
+    self->lines = g_ptr_array_new_with_free_func ((GDestroyNotify) cnc_line_free);
 }
 
 CncShape *

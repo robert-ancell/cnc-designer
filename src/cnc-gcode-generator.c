@@ -40,7 +40,7 @@ cnc_gcode_generator_class_init (CncGcodeGeneratorClass *klass)
 static void
 cnc_gcode_generator_init (CncGcodeGenerator *self)
 {
-     self->data = g_string_new ("");
+    self->data = g_string_new ("");
 }
 
 CncGcodeGenerator *

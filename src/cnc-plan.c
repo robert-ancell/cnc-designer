@@ -34,7 +34,7 @@ cnc_plan_class_init (CncPlanClass *klass)
 static void
 cnc_plan_init (CncPlan *self)
 {
-     self->layers = g_ptr_array_new_with_free_func (g_object_unref);
+    self->layers = g_ptr_array_new_with_free_func (g_object_unref);
 }
 
 CncPlan *
