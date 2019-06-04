@@ -7,8 +7,6 @@
  * (at your option) any later version.
  */
 
-#include <json-glib/json-glib.h>
-
 #include "cnc-plan.h"
 
 struct _CncPlan

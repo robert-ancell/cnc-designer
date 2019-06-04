@@ -7,8 +7,6 @@
  * (at your option) any later version.
  */
 
-#include <json-glib/json-glib.h>
-
 #include "cnc-layer.h"
 
 struct _CncLayer

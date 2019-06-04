@@ -7,8 +7,6 @@
  * (at your option) any later version.
  */
 
-#include <json-glib/json-glib.h>
-
 #include "cnc-shape.h"
 
 struct _CncShape
