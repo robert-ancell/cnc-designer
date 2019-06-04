@@ -39,10 +39,15 @@ cnc_application_window_init (CncApplicationWindow *self)
 
     g_autoptr(GError) error = NULL;
     g_autofree gchar *save_data = NULL;
-    if (g_file_get_contents ("cnc-autosave.json", &save_data, NULL, &error))
-        self->plan = cnc_plan_new_from_data (save_data, -1);
-    else
+    if (g_file_get_contents ("cnc-autosave.json", &save_data, NULL, &error)) {
+        g_autoptr(JsonParser) parser = json_parser_new ();
+        if (json_parser_load_from_data (parser, save_data, -1, &error))
+            self->plan = cnc_plan_new_from_json (json_parser_get_root (parser));
+    }
+    if (self->plan == NULL) {
         self->plan = cnc_plan_new ();
+        cnc_plan_add_layer (self->plan);
+    }
     cnc_plan_view_set_plan (self->plan_view, self->plan);
 }
 

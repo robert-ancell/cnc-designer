@@ -67,14 +67,22 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
     if (self->plan == NULL)
         return TRUE;
 
-    GPtrArray *lines = cnc_plan_get_lines (self->plan);
-    for (guint i = 0; i < lines->len; i++) {
-        CncLine *line = g_ptr_array_index (lines, i);
-        gdouble x0, y0, x1, y1;
-        plan_to_screen (self, line->x0, line->y0, &x0, &y0);
-        plan_to_screen (self, line->x1, line->y1, &x1, &y1);
-        cairo_move_to (cr, x0, y0);
-        cairo_line_to (cr, x1, y1);
+    GPtrArray *layers = cnc_plan_get_layers (self->plan);
+    for (guint i = 0; i < layers->len; i++) {
+        CncLayer *layer = g_ptr_array_index (layers, i);
+        GPtrArray *shapes = cnc_layer_get_shapes (layer);
+        for (guint j = 0; j < shapes->len; j++) {
+            CncShape *shape = g_ptr_array_index (shapes, i);
+            GPtrArray *lines = cnc_shape_get_lines (shape);
+            for (guint k = 0; k < lines->len; k++) {
+                CncLine *line = g_ptr_array_index (lines, k);
+                gdouble x0, y0, x1, y1;
+                plan_to_screen (self, line->x0, line->y0, &x0, &y0);
+                plan_to_screen (self, line->x1, line->y1, &x1, &y1);
+                cairo_move_to (cr, x0, y0);
+                cairo_line_to (cr, x1, y1);
+            }
+        }
     }
     cairo_set_source_rgb (cr, 1, 1, 1);
     cairo_stroke (cr);
@@ -85,9 +93,32 @@ cnc_plan_view_draw (GtkWidget *widget, cairo_t *cr)
 static void
 save (CncPlanView *self)
 {
-    g_autofree gchar *data = cnc_plan_to_data (self->plan, NULL);
+    g_autoptr(JsonNode) root = cnc_plan_to_json (self->plan);
+    g_autoptr(JsonGenerator) generator = json_generator_new ();
+    json_generator_set_root (generator, root);
+    g_autofree gchar *data = json_generator_to_data (generator, NULL);
     g_autoptr(GError) error = NULL;
     g_file_set_contents ("cnc-autosave.json", data, -1, &error);
+}
+
+static CncShape *
+get_selected_shape (CncPlanView *self)
+{
+    if (self->plan == NULL)
+        return NULL;
+
+    GPtrArray *layers = cnc_plan_get_layers (self->plan);
+    if (layers->len == 0)
+        return NULL;
+    CncLayer *layer = g_ptr_array_index (layers, 0);
+
+    GPtrArray *shapes = cnc_layer_get_shapes (layer);
+    if (shapes->len == 0) {
+        CncShape *shape = cnc_layer_add_shape (layer);
+        return shape;
+    }
+
+    return g_ptr_array_index (shapes, 0);
 }
 
 static gboolean
@@ -95,7 +126,8 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
     CncPlanView *self = CNC_PLAN_VIEW (widget);
 
-    if (self->plan == NULL)
+    CncShape *shape = get_selected_shape (self);
+    if (shape == NULL)
         return TRUE;
 
     gdouble x, y;
@@ -107,7 +139,7 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
             self->current_line->y1 = y;
             save (self);
         }
-        self->current_line = cnc_plan_add_line (self->plan);
+        self->current_line = cnc_shape_add_line (shape);
         self->current_line->x0 = x;
         self->current_line->y0 = y;
         self->current_line->x1 = x;
@@ -115,7 +147,7 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
     }
     else if (event->button == 3) {
         if (self->current_line != NULL) {
-            cnc_plan_remove_line (self->plan, self->current_line);
+            cnc_shape_remove_line (shape, self->current_line);
             self->current_line = NULL;
         }
     }

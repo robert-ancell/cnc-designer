@@ -7,11 +7,15 @@ resources_src = gnome.compile_resources(
 
 exe = executable('cnc-designer',
                  resources_src,
-                 sources : [ 'cnc-application.c',
+                 sources : [
+                   'cnc-application.c',
                    'cnc-application-window.c',
                    'cnc-designer.c',
+                   'cnc-layer.c',
                    'cnc-plan.c',
-                   'cnc-plan-view.c' ],
+                   'cnc-plan-view.c',
+                   'cnc-shape.c',
+                 ],
                  dependencies : [ gtk_dep, json_glib_dep ],
                  install : true)
 

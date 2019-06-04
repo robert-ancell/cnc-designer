@@ -15,29 +15,16 @@ struct _CncPlan
 {
     GObject parent_instance;
 
-    GPtrArray *lines;
+    GPtrArray *layers;
 };
 
 G_DEFINE_TYPE (CncPlan, cnc_plan, G_TYPE_OBJECT)
-
-static CncLine *
-cnc_line_new (void)
-{
-    CncLine *line = g_new0 (CncLine, 1);
-    return line;
-}
-
-static void
-cnc_line_free (CncLine *line)
-{
-    g_free (line);
-}
 
 static void
 cnc_plan_dispose (GObject *object)
 {
     CncPlan *self = CNC_PLAN (object);
-    g_clear_pointer (&self->lines, g_ptr_array_unref);
+    g_clear_pointer (&self->layers, g_ptr_array_unref);
 }
 
 static void
@@ -49,7 +36,7 @@ cnc_plan_class_init (CncPlanClass *klass G_GNUC_UNUSED)
 static void
 cnc_plan_init (CncPlan *self)
 {
-     self->lines = g_ptr_array_new_with_free_func ((GDestroyNotify) cnc_line_free);
+     self->layers = g_ptr_array_new_with_free_func (g_object_unref);
 }
 
 CncPlan *
@@ -59,91 +46,64 @@ cnc_plan_new (void)
 }
 
 static gboolean
-set_from_data (CncPlan *self, const gchar *data, gssize length, GError **error)
+set_from_json (CncPlan *self, JsonNode *node, GError **error)
 {
-    g_autoptr(JsonParser) parser = json_parser_new ();
-    if (!json_parser_load_from_data (parser, data, length, error))
-        return FALSE;
-
-    g_ptr_array_set_size (self->lines, 0);
+    g_ptr_array_set_size (self->layers, 0);
 
     // FIXME: checks
-    JsonNode *root_node = json_parser_get_root (parser);
-    JsonObject *root = json_node_get_object (root_node);
-    JsonArray *lines = json_object_get_array_member (root, "lines");
-    for (guint i = 0; i < json_array_get_length (lines); i++) {
-        JsonObject *line_object = json_array_get_object_element (lines, i);
-        CncLine *line = cnc_plan_add_line (self);
-        line->x0 = json_object_get_double_member (line_object, "x0");
-        line->y0 = json_object_get_double_member (line_object, "y0");
-        line->x1 = json_object_get_double_member (line_object, "x1");
-        line->y1 = json_object_get_double_member (line_object, "y1");
+    JsonObject *root = json_node_get_object (node);
+    if (json_object_has_member (root, "layers")) {
+        JsonArray *layers = json_object_get_array_member (root, "layers");
+        for (guint i = 0; i < json_array_get_length (layers); i++) {
+            CncLayer *layer = cnc_layer_new_from_json (json_array_get_element (layers, i));
+            g_ptr_array_add (self->layers, layer);
+        }
     }
 
     return TRUE;
 }
 
 CncPlan *
-cnc_plan_new_from_data (const gchar *data, gssize length)
+cnc_plan_new_from_json (JsonNode *node)
 {
     CncPlan *plan = cnc_plan_new ();
 
     g_autoptr(GError) error = NULL;
-    set_from_data (plan, data, length, &error);
+    set_from_json (plan, node, &error);
 
     return plan;
 }
 
-gchar *
-cnc_plan_to_data (CncPlan *self, gsize *length)
+JsonNode *
+cnc_plan_to_json (CncPlan *self)
 {
     g_autoptr(JsonBuilder) builder = json_builder_new ();
 
     json_builder_begin_object (builder);
-    json_builder_set_member_name (builder, "lines");
+    json_builder_set_member_name (builder, "layers");
     json_builder_begin_array (builder);
-    for (guint i = 0; i < self->lines->len; i++) {
-        CncLine *line = g_ptr_array_index (self->lines, i);
-        json_builder_begin_object (builder);
-        json_builder_set_member_name (builder, "x0");
-        json_builder_add_double_value (builder, line->x0);
-        json_builder_set_member_name (builder, "y0");
-        json_builder_add_double_value (builder, line->y0);
-        json_builder_set_member_name (builder, "x1");
-        json_builder_add_double_value (builder, line->x1);
-        json_builder_set_member_name (builder, "y1");
-        json_builder_add_double_value (builder, line->y1);
-        json_builder_end_object (builder);
+    for (guint i = 0; i < self->layers->len; i++) {
+        CncLayer *layer = g_ptr_array_index (self->layers, i);
+        json_builder_add_value (builder, cnc_layer_to_json (layer));
     }
     json_builder_end_array (builder);
     json_builder_end_object (builder);
 
-    g_autoptr(JsonGenerator) generator = json_generator_new ();
-    g_autoptr(JsonNode) root = json_builder_get_root (builder);
-    json_generator_set_root (generator, root);
-
-    return json_generator_to_data (generator, length);
+    return json_builder_get_root (builder);
 }
 
-CncLine *
-cnc_plan_add_line (CncPlan *self)
+CncLayer *
+cnc_plan_add_layer (CncPlan *self)
 {
     g_return_val_if_fail (CNC_IS_PLAN (self), NULL);
-    CncLine *line = cnc_line_new ();
-    g_ptr_array_add (self->lines, line);
-    return line;
-}
-
-void
-cnc_plan_remove_line (CncPlan *self, CncLine *line)
-{
-    g_return_if_fail (CNC_IS_PLAN (self));
-    g_ptr_array_remove (self->lines, line);
+    CncLayer *layer = cnc_layer_new ();
+    g_ptr_array_add (self->layers, layer);
+    return layer;
 }
 
 GPtrArray *
-cnc_plan_get_lines (CncPlan *self)
+cnc_plan_get_layers (CncPlan *self)
 {
     g_return_val_if_fail (CNC_IS_PLAN (self), NULL);
-    return self->lines;
+    return self->layers;
 }

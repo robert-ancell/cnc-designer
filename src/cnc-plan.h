@@ -10,27 +10,22 @@
 #pragma once
 
 #include <glib-object.h>
+#include <json-glib/json-glib.h>
+
+#include "cnc-layer.h"
 
 G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE (CncPlan, cnc_plan, CNC, PLAN, GObject)
 
-typedef struct
-{
-    gdouble x0, y0;
-    gdouble x1, y1;
-} CncLine;
-
 CncPlan   *cnc_plan_new           (void);
 
-CncPlan   *cnc_plan_new_from_data (const gchar *data, gssize length);
+CncPlan   *cnc_plan_new_from_json (JsonNode *node);
 
-gchar     *cnc_plan_to_data       (CncPlan *plan, gsize *length);
+JsonNode  *cnc_plan_to_json       (CncPlan  *plan);
 
-CncLine   *cnc_plan_add_line      (CncPlan *plan);
+CncLayer  *cnc_plan_add_layer     (CncPlan  *plan);
 
-void       cnc_plan_remove_line   (CncPlan *plan, CncLine *line);
-
-GPtrArray *cnc_plan_get_lines     (CncPlan *plan);
+GPtrArray *cnc_plan_get_layers    (CncPlan  *plan);
 
 G_END_DECLS
