@@ -28,7 +28,7 @@ cnc_plan_dispose (GObject *object)
 }
 
 static void
-cnc_plan_class_init (CncPlanClass *klass G_GNUC_UNUSED)
+cnc_plan_class_init (CncPlanClass *klass)
 {
     G_OBJECT_CLASS (klass)->dispose = cnc_plan_dispose;
 }

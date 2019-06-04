@@ -30,7 +30,7 @@ cnc_layer_dispose (GObject *object)
 }
 
 static void
-cnc_layer_class_init (CncLayerClass *klass G_GNUC_UNUSED)
+cnc_layer_class_init (CncLayerClass *klass)
 {
     G_OBJECT_CLASS (klass)->dispose = cnc_layer_dispose;
 }

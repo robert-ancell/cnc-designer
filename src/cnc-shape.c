@@ -41,7 +41,7 @@ cnc_shape_dispose (GObject *object)
 }
 
 static void
-cnc_shape_class_init (CncShapeClass *klass G_GNUC_UNUSED)
+cnc_shape_class_init (CncShapeClass *klass)
 {
     G_OBJECT_CLASS (klass)->dispose = cnc_shape_dispose;
 }
