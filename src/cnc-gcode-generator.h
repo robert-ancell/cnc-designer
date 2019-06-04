@@ -23,6 +23,12 @@ typedef enum
 
 typedef enum
 {
+    CNC_UNITS_MILLIMETER = 0,
+    CNC_UNITS_INCH
+} CncUnits;
+
+typedef enum
+{
     CNC_SPINDLE_DIRECTION_CLOCKWISE = 0,
     CNC_SPINDLE_DIRECTION_COUNTER_CLOCKWISE
 } CncSpindleDirection;
@@ -32,6 +38,8 @@ CncGcodeGenerator *cnc_gcode_generator_new                (void);
 void               cnc_gcode_generator_add_comment        (CncGcodeGenerator *generator, const gchar *comment);
 
 void               cnc_gcode_generator_add_distance_mode  (CncGcodeGenerator *generator, CncDistanceMode mode);
+
+void               cnc_gcode_generator_add_units          (CncGcodeGenerator *generator, CncUnits units);
 
 void               cnc_gcode_generator_add_spindle_on     (CncGcodeGenerator *generator, CncSpindleDirection direction, gint64 speed);
 

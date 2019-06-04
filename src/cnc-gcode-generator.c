@@ -96,6 +96,16 @@ cnc_gcode_generator_add_distance_mode (CncGcodeGenerator *self, CncDistanceMode 
 }
 
 void
+cnc_gcode_generator_add_units (CncGcodeGenerator *self, CncUnits units)
+{
+    if (units == CNC_UNITS_INCH)
+        g_string_append (self->data, "G20");
+    else
+        g_string_append (self->data, "G21");
+    end_line (self);
+}
+
+void
 cnc_gcode_generator_add_spindle_on (CncGcodeGenerator *self, CncSpindleDirection direction, gint64 speed)
 {
     if (direction == CNC_SPINDLE_DIRECTION_COUNTER_CLOCKWISE)
