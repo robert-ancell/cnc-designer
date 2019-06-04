@@ -58,6 +58,7 @@ add_value (CncGcodeGenerator *self, const gchar *address, gint64 value)
     guint fraction = value % 1000;
     if (fraction == 0)
         return;
+    g_string_append (self->data, ".");
     guint d = 100;
     while (TRUE) {
         guint f = fraction / d;

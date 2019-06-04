@@ -8,6 +8,7 @@
  */
 
 #include "cnc-plan-view.h"
+#include "cnc-etcher.h" // FIXME temp
 
 struct _CncPlanView
 {
@@ -137,6 +138,7 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
         if (self->current_line != NULL) {
             self->current_line->x1 = x;
             self->current_line->y1 = y;
+            // FIXME: do somewhere else
             save (self);
         }
         self->current_line = cnc_shape_add_line (shape);
@@ -150,6 +152,18 @@ cnc_plan_view_button_press_event (GtkWidget *widget, GdkEventButton *event)
             cnc_shape_remove_line (shape, self->current_line);
             self->current_line = NULL;
         }
+        // FIXME: temp
+        g_autoptr(CncGcodeGenerator) generator = cnc_gcode_generator_new ();
+        cnc_gcode_generator_add_comment (generator, "TEST");
+        cnc_gcode_generator_add_distance_mode (generator, CNC_DISTANCE_MODE_ABSOLUTE);
+        cnc_gcode_generator_add_units (generator, CNC_UNITS_MILLIMETER);
+        cnc_gcode_generator_add_spindle_on (generator, CNC_SPINDLE_DIRECTION_CLOCKWISE, 0);
+        g_autoptr(CncEtcher) etcher = cnc_etcher_new ();
+        cnc_etcher_add_shape (etcher, shape);
+        cnc_etcher_generate_gcode (etcher, generator);
+        cnc_gcode_generator_add_end_of_program (generator);
+        g_autofree gchar *gcode = cnc_gcode_generator_to_data (generator);
+        g_printerr ("%s", gcode);
     }
 
     gtk_widget_queue_draw (GTK_WIDGET (self));
