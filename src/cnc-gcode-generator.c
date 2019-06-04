@@ -86,6 +86,16 @@ cnc_gcode_generator_add_comment (CncGcodeGenerator *self, const gchar *comment)
 }
 
 void
+cnc_gcode_generator_add_distance_mode (CncGcodeGenerator *self, CncDistanceMode mode)
+{
+    if (mode == CNC_DISTANCE_MODE_RELATIVE)
+        g_string_append (self->data, "G91");
+    else
+        g_string_append (self->data, "G90");
+    end_line (self);
+}
+
+void
 cnc_gcode_generator_add_spindle_on (CncGcodeGenerator *self, CncSpindleDirection direction, gint64 speed)
 {
     if (direction == CNC_SPINDLE_DIRECTION_COUNTER_CLOCKWISE)
