@@ -21,7 +21,7 @@ plugs:
 apps:
   cnc-designer:
     command: bin/desktop-launch ${SNAP}/usr/bin/cnc-designer
-    #desktop: cnc-designer.desktop
+    desktop: usr/share/applications/cnc-designer.desktop
     plugs:
       - desktop
       - wayland

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=CNC Designer
+Comment=Design tool for CNC milling
+Exec=cnc-designer
+Type=Application
+Keywords=CNC;GRBL;Milling;Design;CAD;CAM;
