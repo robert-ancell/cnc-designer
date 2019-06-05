@@ -1,0 +1,47 @@
+name: cnc-designer
+base: core18
+version: 'master'
+summary: Design tool for CNC milling
+description: |
+  Create designs for for CNC milling machines.
+
+  Supports GRBL 1.1 CNC controllers.
+
+grade: stable
+confinement: strict
+
+plugs:
+  gnome-3-28-1804:
+    interface: content
+    target: $SNAP/gnome-platform
+    default-provider: gnome-3-28-1804
+
+apps:
+  cnc-designer:
+    command: bin/desktop-launch ${SNAP}/usr/bin/cnc-designer
+    #desktop: cnc-designer.desktop
+    plugs:
+      - desktop
+      - wayland
+      - x11
+
+parts:
+  desktop-gnome-platform:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    plugin: make
+    make-parameters: ["FLAVOR=gtk3"]
+    build-packages:
+      - libgtk-3-dev
+    override-build: |
+      snapcraftctl build
+      mkdir -pv $SNAPCRAFT_PART_INSTALL/gnome-platform
+  cnc-designer:
+    after: [desktop-gnome-platform]
+    source: .
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+    build-packages:
+     - libgtk-3-dev
+     - libjson-glib-dev
