@@ -9,12 +9,18 @@
 
 #pragma once
 
-#include <glib-object.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
 
 G_DECLARE_FINAL_TYPE (CncGrblClient, cnc_grbl_client, CNC, GRBL_CLIENT, GObject)
 
-CncGrblClient *cnc_grbl_client_new (void);
+CncGrblClient *cnc_grbl_client_new          (const gchar *path);
+
+gboolean       cnc_grbl_client_connect      (CncGrblClient *client, GCancellable *cancellable, GError **error);
+
+const gchar   *cnc_grbl_client_get_version  (CncGrblClient *self);
+
+void           cnc_grbl_client_send_command (CncGrblClient *self, const gchar *command);
 
 G_END_DECLS
